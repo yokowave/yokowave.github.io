@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="关于程序与设计、黑客与画家 | 缪世伟，Web & Mobile Lover，Software Engineer，UX Designer | 这里是 @Yoko缪世伟 的个人博客，与你一起发现更大的世界。">
+    <meta name="keywords"  content="缪世伟, Yoko缪世伟, Yoko, 鬼栈, Yoko, @Yoko, 缪世伟的博客, Yoko Blog, 博客, 个人网站, 游戏, Shader, UE4, Unity, 设计, 计算机图形学">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Yoko的博客 | Yoko Blog">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="技术美术从看懂到看开">
+    
+    <meta property="og:image" content="http://localhost:4000/img/avatar-hux-ny.jpg">
+    <meta property="og:url" content="http://localhost:4000/">
+    <meta property="og:site_name" content="Yoko的博客 | Yoko Blog">
+    
+    <title>Yoko的博客 | Yoko Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Yoko Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div id="huxblog_navbar">
+                <div class="navbar-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="/">Home</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                        
+                        
+                        <li>
+                            <a href="/archive/">Archive</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <li class="search-icon">
+                            <a href="javascript:void(0)">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <script>
+        // Drop Bootstarp low-performance Navbar
+        // Use customize navbar with high-quality material design animation
+        // in high-perf jank-free CSS3 implementation
+        var $body = document.body;
+        var $toggle = document.querySelector('.navbar-toggle');
+        var $navbar = document.querySelector('#huxblog_navbar');
+        var $collapse = document.querySelector('.navbar-collapse');
+
+        var __HuxNav__ = {
+            close: function () {
+                $navbar.className = " ";
+                // wait until animation end.
+                setTimeout(function () {
+                    // prevent frequently toggle
+                    if ($navbar.className.indexOf('in') < 0) {
+                        $collapse.style.height = "0px"
+                    }
+                }, 400)
+            },
+            open: function () {
+                $collapse.style.height = "auto"
+                $navbar.className += " in";
+            }
+        }
+
+        // Bind Event
+        $toggle.addEventListener('click', function (e) {
+            if ($navbar.className.indexOf('in') > 0) {
+                __HuxNav__.close()
+            } else {
+                __HuxNav__.open()
+            }
+        })
+
+        /**
+         * Since Fastclick is used to delegate 'touchstart' globally
+         * to hack 300ms delay in iOS by performing a fake 'click',
+         * Using 'e.stopPropagation' to stop 'touchstart' event from 
+         * $toggle/$collapse will break global delegation.
+         * 
+         * Instead, we use a 'e.target' filter to prevent handler
+         * added to document close HuxNav.  
+         *
+         * Also, we use 'click' instead of 'touchstart' as compromise
+         */
+        document.addEventListener('click', function (e) {
+            if (e.target == $toggle) return;
+            if (e.target.className == 'icon-bar') return;
+            __HuxNav__.close();
+        })
+    </script>
+    <!-- Search -->
+<div class="search-page">
+  <div class="search-icon-close-container">
+    <span class="search-icon-close">
+      <i class="fa fa-chevron-down"></i>
+    </span>
+  </div>
+  <div class="search-main container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <form></form>
+        <input type="text" id="search-input" placeholder="$ grep...">
+        </form>
+        <div id="search-results" class="mini-post-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Page Header -->
+
+
+
+
+
+
+
+<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        
+        <div class="site-heading">
+        
+          <h1>Yoko Blog</h1>
+          <span class="subheading">技术美术从看懂到看开</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<!-- Main Content -->
+<div class="container">
+	<div class="row">
+        
+
+<!-- USE SIDEBAR -->
+    <!-- PostList Container -->
+    		<div class="
+                col-lg-8 col-lg-offset-1
+                col-md-8 col-md-offset-1
+                col-sm-12
+                col-xs-12
+                postlist-container
+            ">
+    			
+<div class="post-preview">
+    <a href="/2020/09/08/multiple-pass-fur/">
+        <h2 class="post-title">
+            Multiple Pass Fair Rendering
+        </h2>
+        
+        <h3 class="post-subtitle">
+            多层Pass毛发渲染
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  毛绒材质在生活中出现的频率非常高，但是在各种游戏中，我们却很少看到这种材质效果的良好表现，原因在于它们的制作与渲染成本都太高了。所以， 实时毛发渲染是业内最为期待的次世代特效之一。
+
+
+我们一般游戏的毛发渲染，都是将毛发纹理放到模型面片上面，用AlphaBlend或者AlphaTest剔除镂空区。但这两者也都无法尽善尽美：
+
+
+  
+    AlphaBlend没有深度会有模型穿插问题...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on September 8, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/08/28/unity-screen-space-to-world-space/">
+        <h2 class="post-title">
+            The Transformation Process From Unity Screen Space To World Space
+        </h2>
+        
+        <h3 class="post-subtitle">
+            Unity屏幕空间到世界空间的转换过程
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                屏幕空间像素的位置，是一个二维的浮点数，而世界空间的位置，则是三维的浮点数。实现的基本思路很简单，是世界空间位置变换到屏幕空间位置的逆过程，只是稍微有些区别。如果对图形渲染管线中的坐标变换没有弄清楚，或者习惯了Unity中直接调用封装好的函数，确实有些麻烦。
+
+简单的说，世界空间位置变换到屏幕空间位置的步骤是这样的：
+
+世界空间位置变换到屏幕空间
+
+第一步，世界空间位置变换到裁剪空间
+
+1
+...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on August 28, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/06/12/screen-warp/">
+        <h2 class="post-title">
+            Screen UV Perturbation Refraction Effect
+        </h2>
+        
+        <h3 class="post-subtitle">
+            屏幕UV扰动折射效果
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                实现原理：在渲染前，先把需要扰动的物体的背景存成一张图，再把屏幕坐标UV把这张图贴回去
+
+获取背景纹理的方法：
+
+  GrabPass:方便，但贵
+  CommandBuffer：前Srp时代管线自定义方法；
+  Lwrp/Urp：后Srp时代管线自定义方法（推荐）；
+
+
+输入结构，不用改；
+
+输出结构，追加grabPos用于背景纹理采样；
+
+顶点Shader，对应追加grabPos的计算方...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on June 12, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/04/06/edge-detection/">
+        <h2 class="post-title">
+            Edge Detection,Gaussian Blur And Bloom Effect
+        </h2>
+        
+        <h3 class="post-subtitle">
+            边缘检测、高斯模糊和Bloom效果
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                边缘检测
+
+边缘检测的原理是利用一些边缘检测算子对图像进行卷积（convolution）操作。
+
+什么是卷积
+
+在图像处理中，卷积操作指的就是使用一个卷积核（kernel）对一张图像中的每个像素进行一系列操作。卷积核通常是一个四方形网格状结构，该区域内每个方格都有一个权重值。当对图像中的某个像素进行卷积时会把卷积核的中心放置于该像素上，翻转核之后再依次计算核中每个元素和其覆盖的图像像素值的乘...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on April 6, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/03/25/forward-deferred/">
+        <h2 class="post-title">
+            Forward Rendering Deferred Rendring
+        </h2>
+        
+        <h3 class="post-subtitle">
+            前向渲染和延迟渲染
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  在Unity里，渲染路径（Rendering Path）决定了光照是如何应用到Unity Shader中的。Unity支持多种类型的渲染路径。主要有3种：前向渲染路径(Forward Rendering Path)、延迟渲染路径(Deferred Rendering Path)、和顶点照明渲染路径(Vertex Lit Rendering Path)。顶点照明渲染路径已被淘汰，仅讨论前...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on March 25, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2020/03/18/anti-aliazing/">
+        <h2 class="post-title">
+            Anti Aliasing And Anti Aliasing Types
+        </h2>
+        
+        <h3 class="post-subtitle">
+            抗锯齿和抗锯齿类型
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  抗锯齿（英语：anti-aliasing，简称 AA），也译为边缘柔化、消除混叠、抗图像折叠有损，反走样等。它是一种消除显示器输出的画面中图物边缘出现凹凸锯齿的技术，那些凹凸的锯齿通常因为高分辨率的信号以低分辨率表示或无法准确运算出 3D 图形坐标定位时所导致的图形混叠（aliasing）而产生的，抗锯齿技术能有效地解决这些问题。
+
+
+超级采样抗锯齿（SSAA）
+
+超级采样抗锯齿（Su...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on March 18, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/11/12/Shadow-Algorithm-PCF/">
+        <h2 class="post-title">
+            Percentage-Closer Filtering PCF
+        </h2>
+        
+        <h3 class="post-subtitle">
+            阴影算法PCF
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                Percentage-Closer Filtering (PCF)
+
+
+  不像正常的纹理，阴影贴图纹理不能通过预过滤来消除走样。取而代之的是多次比较阴影贴图的每个像素，并求其平均值。这个技术叫做 “靠近的百分比过滤” (PCF)，因为它计算的是靠近光源表面的百分比，而不是在阴影中的表面的百分比。
+
+
+百分比渐近过滤(PCF)是一个简单，常见的进行阴影边缘反走的技术。它通过在片段周围进行采样...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on November 12, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/10/23/Toon-Hair-Rendering/">
+        <h2 class="post-title">
+            「HDRP」Unity Toon Hair Rendering
+        </h2>
+        
+        <h3 class="post-subtitle">
+            「HDRP」Unity实现崩坏3高质量卡通头发渲染
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                材质解析
+
+
+
+高光
+
+
+  低频固有高光+高频流动高光
+  半角向量与法线夹角越小高光范围越大
+
+
+阴影
+
+
+  深色固有阴影+浅色动态阴影
+  阴影形状近似球形
+
+
+美术资源制作
+
+稍作分析可以发现都是比较简单的东西，标题的高质量完全靠美术来调整，稍后会提供用到的美术资源。
+首先是球形的阴影，使用法线编辑工具修改法线以使阴影好看已经是卡通渲染必备的技术了。这里推荐2款插件：
+
+
+  No...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on October 23, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/08/26/PBR-Rendering/">
+        <h2 class="post-title">
+            Physically Based Rendering
+        </h2>
+        
+        <h3 class="post-subtitle">
+            基于物理的渲染
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                
+  基于物理的渲染（Physically Based Rendering , PBR）技术，自迪士尼在SIGGRAPH 2012上提出了著名的“迪士尼原则的BRDF（Disney Principled BRDF）”之后，由于其高度的易用性以及方便的工作流，已经被电影和游戏业界广泛使用。
+
+
+公式总结
+
+迪士尼原则的BRDF
+
+
+
+以上公式是用数学语言描述，翻译成中文就是
+
+
+
+以下是对PB...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on August 26, 2019
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2019/07/18/My-First-Bolg/">
+        <h2 class="post-title">
+            My First Blog!
+        </h2>
+        
+        <h3 class="post-subtitle">
+            我的第一个博客！
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                搭建一个博客
+
+作为一个渴望做技术的小伙伴来说，是需要一个地方好好写点东西，做一个技术沉淀的。在一次学习Shader的时候发现了Candycat的博客，里面有介绍博客搭建的方法,如果不够还有Hux的博客教程，以及Cenalulu的博客教程，对小白十分友好，于是就花了两天时间搭了个博客，写写平时学习中的笔记。
+
+实现技术
+
+如果你有一定的前端基础的话，看完这个就可以搭建出来
+
+
+  http:...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Yoko on July 18, 2019
+    </p>
+</div>
+<hr>
+
+
+<!-- Pager -->
+
+
+    		</div>
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-3 col-lg-offset-0
+                col-md-3 col-md-offset-0
+                col-sm-12
+                col-xs-12
+                sidebar-container
+            ">
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0007" 
+                    href="/archive/?tag=%E5%9B%BE%E5%BD%A2%E5%AD%A6"
+                    title="图形学"
+                    rel="3">图形学</a>
+        
+                <a data-sort="0003" 
+                    href="/archive/?tag=Shader"
+                    title="Shader"
+                    rel="7">Shader</a>
+        
+                <a data-sort="0004" 
+                    href="/archive/?tag=%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6"
+                    title="计算机图形学"
+                    rel="6">计算机图形学</a>
+        
+                <a data-sort="0005" 
+                    href="/archive/?tag=Unity"
+                    title="Unity"
+                    rel="5">Unity</a>
+        
+                <a data-sort="0006" 
+                    href="/archive/?tag=%E7%AC%94%E8%AE%B0"
+                    title="笔记"
+                    rel="4">笔记</a>
+        
+                <a data-sort="0007" 
+                    href="/archive/?tag=%E5%9F%BA%E7%A1%80"
+                    title="基础"
+                    rel="3">基础</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=CG"
+                    title="CG"
+                    rel="2">CG</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=OpenGL"
+                    title="OpenGL"
+                    rel="2">OpenGL</a>
+    </div>
+</section>
+
+
+                <!-- Short About -->
+                <section class="visible-md visible-lg">
+  <hr>
+  <h5><a href="/about/">ABOUT ME</a></h5>
+  <div class="short-about">
+    
+    <img src="/img/avatar-hux-ny.jpg" />
+    
+    
+    <p>Immortal and Buddha, ancient and modern<br>亦仙亦佛，不古不今</p>
+    
+    <!-- SNS Link -->
+    
+
+
+<ul class="list-inline">
+
+
+  
+  
+  <li>
+    <a href="https://twitter.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="https://www.zhihu.com/people/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa  fa-stack-1x fa-inverse">知</i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="http://weibo.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+  </div>
+</section>
+
+                <!-- Friends Blog -->
+                
+<hr>
+<h5>FRIENDS</h5>
+<ul class="list-inline">
+  
+  <li><a href="http://candycat1992.github.io/">Candycat Blog</a></li>
+  
+  <li><a href="https://roystan.net/">Erik Roystan Ross Blog</a></li>
+  
+  <li><a href="http://walkingfat.com/">WalkingFat Blog</a></li>
+  
+  <li><a href="http://qiankanglai.me/">Kanglai Blog</a></li>
+  
+  <li><a href="http://www.ixulin.com/">徐小厨烹小鲜 Blog</a></li>
+  
+  <li><a href="https://www.iquilezles.org/">Íñigo Quílez大神 Blog</a></li>
+  
+  <li><a href="http://www.shaderslab.com/index.html">Shaders Laboratory</a></li>
+  
+  <li><a href="https://80.lv/">80 Level</a></li>
+  
+  <li><a href="https://www.shadertoy.com/">Shadertoy</a></li>
+  
+</ul>
+
+    		</div>
+        
+	</div>
+</div>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  <li>
+    <a href="https://twitter.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="https://www.zhihu.com/people/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa  fa-stack-1x fa-inverse">知</i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="http://weibo.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; Yoko Blog 2020
+                    <br>
+                    Powered by <a href="http://Yokowave.github.io">Yoko Blog</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px"
+                        height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Simple Jekyll Search -->
+<script src="/js/simple-jekyll-search.min.js"></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+<!-- Simple Jekyll Search -->
+<script>
+    // https://stackoverflow.com/questions/1912501/unescape-html-entities-in-javascript
+    function htmlDecode(input) {
+        var e = document.createElement('textarea');
+        e.innerHTML = input;
+        // handle case of empty input
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+    SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('search-results'),
+        json: '/search.json',
+        searchResultTemplate: '<div class="post-preview item"><a href="{url}"><h2 class="post-title">{title}</h2><h3 class="post-subtitle">{subtitle}</h3><hr></a></div>',
+        noResultsText: 'No results',
+        limit: 50,
+        fuzzy: false,
+        // a hack to get escaped subtitle unescaped. for some reason, 
+        // post.subtitle w/o escape filter nuke entire search.
+        templateMiddleware: function (prop, value, template) {
+            if (prop === 'subtitle' || prop === 'title') {
+                if (value.indexOf("code")) {
+                    return htmlDecode(value);
+                } else {
+                    return value;
+                }
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        var $searchPage = $('.search-page');
+        var $searchOpen = $('.search-icon');
+        var $searchClose = $('.search-icon-close');
+        var $searchInput = $('#search-input');
+        var $body = $('body');
+
+        $searchOpen.on('click', function (e) {
+            e.preventDefault();
+            $searchPage.toggleClass('search-active');
+            var prevClasses = $body.attr('class') || '';
+            setTimeout(function () {
+                $body.addClass('no-scroll');
+            }, 400)
+
+            if ($searchPage.hasClass('search-active')) {
+                $searchClose.on('click', function (e) {
+                    e.preventDefault();
+                    $searchPage.removeClass('search-active');
+                    $body.attr('class', prevClasses);  // from closure 
+                });
+                $searchInput.focus();
+            }
+        });
+    });
+</script>
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
