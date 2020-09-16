@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="关于程序与设计、黑客与画家 | 缪世伟，Web & Mobile Lover，Software Engineer，UX Designer | 这里是 @Yoko缪世伟 的个人博客，与你一起发现更大的世界。">
+    <meta name="keywords"  content="缪世伟, Yoko缪世伟, Yoko, 鬼栈, Yoko, @Yoko, 缪世伟的博客, Yoko Blog, 博客, 个人网站, 游戏, Shader, UE4, Unity, 设计, 计算机图形学">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Physically Based Rendering - Yoko的博客 | Yoko Blog">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="
+  基于物理的渲染（Physically Based Rendering , PBR）技术，自迪士尼在SIGGRAPH 2012上提出了著名的“迪士尼原则的BRDF（Disney Principled BRDF）”之后，由于其高度的易用性以及方便的工作流，已经被电影和游戏业界广泛使用。
+
+">
+    
+    <meta property="article:published_time" content="2019-08-26T00:00:00Z">
+    
+    
+    <meta property="article:author" content="Yoko">
+    
+    
+    <meta property="article:tag" content="图形学">
+    
+    <meta property="article:tag" content="Shader">
+    
+    <meta property="article:tag" content="CG">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/avatar-hux-ny.jpg">
+    <meta property="og:url" content="http://localhost:4000/2019/08/26/PBR-Rendering/">
+    <meta property="og:site_name" content="Yoko的博客 | Yoko Blog">
+    
+    <title>Physically Based Rendering - Yoko的博客 | Yoko Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2019/08/26/PBR-Rendering/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Yoko Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div id="huxblog_navbar">
+                <div class="navbar-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="/">Home</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        <li>
+                            <a href="/about/">About</a>
+                        </li>
+                        
+                        
+                        
+                        <li>
+                            <a href="/archive/">Archive</a>
+                        </li>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <li class="search-icon">
+                            <a href="javascript:void(0)">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <script>
+        // Drop Bootstarp low-performance Navbar
+        // Use customize navbar with high-quality material design animation
+        // in high-perf jank-free CSS3 implementation
+        var $body = document.body;
+        var $toggle = document.querySelector('.navbar-toggle');
+        var $navbar = document.querySelector('#huxblog_navbar');
+        var $collapse = document.querySelector('.navbar-collapse');
+
+        var __HuxNav__ = {
+            close: function () {
+                $navbar.className = " ";
+                // wait until animation end.
+                setTimeout(function () {
+                    // prevent frequently toggle
+                    if ($navbar.className.indexOf('in') < 0) {
+                        $collapse.style.height = "0px"
+                    }
+                }, 400)
+            },
+            open: function () {
+                $collapse.style.height = "auto"
+                $navbar.className += " in";
+            }
+        }
+
+        // Bind Event
+        $toggle.addEventListener('click', function (e) {
+            if ($navbar.className.indexOf('in') > 0) {
+                __HuxNav__.close()
+            } else {
+                __HuxNav__.open()
+            }
+        })
+
+        /**
+         * Since Fastclick is used to delegate 'touchstart' globally
+         * to hack 300ms delay in iOS by performing a fake 'click',
+         * Using 'e.stopPropagation' to stop 'touchstart' event from 
+         * $toggle/$collapse will break global delegation.
+         * 
+         * Instead, we use a 'e.target' filter to prevent handler
+         * added to document close HuxNav.  
+         *
+         * Also, we use 'click' instead of 'touchstart' as compromise
+         */
+        document.addEventListener('click', function (e) {
+            if (e.target == $toggle) return;
+            if (e.target.className == 'icon-bar') return;
+            __HuxNav__.close();
+        })
+    </script>
+    <!-- Search -->
+<div class="search-page">
+  <div class="search-icon-close-container">
+    <span class="search-icon-close">
+      <i class="fa fa-chevron-down"></i>
+    </span>
+  </div>
+  <div class="search-main container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <form></form>
+        <input type="text" id="search-input" placeholder="$ grep...">
+        </form>
+        <div id="search-results" class="mini-post-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-PBR-Rendering.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-PBR-Rendering.jpg');
+        background: ;
+    }
+
+    
+</style>
+
+<header class="intro-header" >
+
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=%E5%9B%BE%E5%BD%A2%E5%AD%A6" title="图形学">图形学</a>
+                        
+                        <a class="tag" href="/archive/?tag=Shader" title="Shader">Shader</a>
+                        
+                        <a class="tag" href="/archive/?tag=CG" title="CG">CG</a>
+                        
+                    </div>
+                    <h1>Physically Based Rendering</h1>
+                    
+                    <h2 class="subheading">基于物理的渲染</h2>
+                    <span class="meta">Posted by Yoko on August 26, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<blockquote>
+  <p>基于物理的渲染（Physically Based Rendering , PBR）技术，自迪士尼在SIGGRAPH 2012上提出了著名的“迪士尼原则的BRDF（Disney Principled BRDF）”之后，由于其高度的易用性以及方便的工作流，已经被电影和游戏业界广泛使用。</p>
+</blockquote>
+
+<h1 id="公式总结"><strong>公式总结</strong></h1>
+
+<p>迪士尼原则的BRDF</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/brdf.png" alt="" /></p>
+
+<p>以上公式是用数学语言描述，翻译成中文就是</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/brdf-translate.png" alt="" /></p>
+
+<p>以下是对PBR基础理念的概括：</p>
+<ul>
+  <li><strong>微平面理论（Microfacet Theory）</strong>。微平面理论是将物体表面建模成做无数微观尺度上有随机朝向的理想镜面反射的小平面（microfacet）的理论。在实际的PBR 工作流中，这种物体表面的不规则性用粗糙度贴图或者高光度贴图来表示。</li>
+  <li><strong>能量守恒（Energy Conservation）</strong>。出射光线的能量永远不能超过入射光线的能量。随着粗糙度的上升镜面反射区域的面积会增加，作为平衡，镜面反射区域的平均亮度则会下降。</li>
+  <li><strong>菲涅尔反射（Fresnel Reflectance）</strong>。光线以不同角度入射会有不同的反射率。相同的入射角度，不同的物质也会有不同的反射率。万物皆有菲涅尔反射。F0是即 0 度角入射的菲涅尔反射值。大多数非金属的F0范围是0.02~0.04，大多数金属的F0范围是0.7~1.0。</li>
+  <li><strong>线性空间（Linear Space）</strong>。光照计算必须在线性空间完成，shader 中输入的gamma空间的贴图比如漫反射贴图需要被转成线性空间，在具体操作时需要根据不同引擎和渲染器的不同做不同的操作。而描述物体表面属性的贴图如粗糙度，高光贴图，金属贴图等必须保证是线性空间。</li>
+  <li><strong>色调映射（Tone Mapping）</strong>。也称色调复制（tone reproduction），是将宽范围的照明级别拟合到屏幕有限色域内的过程。因为基于HDR渲染出来的亮度值会超过显示器能够显示最大亮度，所以需要使用色调映射，将光照结果从HDR转换为显示器能够正常显示的LDR。</li>
+  <li><strong>物质的光学特性（Substance Optical Properties）</strong>。现实世界中有不同类型的物质可分为三大类：绝缘体（Insulators），半导体（semi-conductors）和导体（conductors）。在渲染和游戏领域，我们一般只对其中的两个感兴趣：导体（金属）和绝缘体（电解质，非金属）。其中非金属具有单色/灰色镜面反射颜色。而金属具有彩色的镜面反射颜色。即非金属的F0是一个float。而金属的F0是一个float3，如下图。</li>
+</ul>
+
+<p><img src="/img/in-post/post-pbr-rendering/F0.jpg" alt="" /></p>
+
+<h2 id="1镜面反射brdf模型specular-brdf"><strong>1.镜面反射BRDF模型（Specular BRDF）</strong></h2>
+
+<p>游戏业界目前最主流的基于物理的镜面反射BRDF模型是基于<strong>微平面理论</strong>（microfacet theory）的Microfacet <strong>Cook-Torrance</strong> BRDF。</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/specular-BRDF.png" alt="" /></p>
+
+<ul>
+  <li><strong>D(h)</strong> : 法线分布函数 （Normal Distribution Function），描述微面元法线分布的概率，即正确朝向的法线的浓度。即具有正确朝向，能够将来自l的光反射到v的表面点的相对于表面面积的浓度。</li>
+  <li><strong>F(l,h)</strong> : 菲涅尔方程（Fresnel Equation），描述不同的表面角下表面所反射的光线所占的比率。</li>
+  <li><strong>G(l,v,h)</strong> : 几何函数（Geometry Function），描述微平面自成阴影的属性，即m = h的未被遮蔽的表面点的百分比。</li>
+  <li><strong>分母 4(n·l)(n·v）</strong>：校正因子（correctionfactor），作为微观几何的局部空间和整个宏观表面的局部空间之间变换的微平面量的校正。</li>
+</ul>
+
+<p>关于Cook-Torrance BRDF，需要强调的两点<strong>注意事项</strong>：</p>
+
+<ul>
+  <li>对于分母中的点积，仅仅避免负值是不够的 ,也必须避免零值。通常通过在常规的clamp或绝对值操作之后<strong>添加非常小的正值</strong>来完成。</li>
+  <li>Microfacet Cook-Torrance BRDF是实践中使用最广泛的模型，实际上也是人们可以想到的最简单的微平面模型。它仅对几何光学系统中的<strong>单层微表面上的单个散射</strong>进行建模，没有考虑多次散射，分层材质，以及衍射。Microfacet模型，实际上还有很长的路要走。</li>
+</ul>
+
+<h3 id="1d项-法线分布函数normal-distribution-function-ndf">1.D项 法线分布函数（Normal Distribution Function, NDF）</h3>
+
+<p>业界较为主流的法线分布函数是<strong>GGX（Trowbridge-Reitz）</strong>，因为具有更好的高光长尾：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/NDF.png" alt="" /></p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Blinn.jpg" alt="" /></p>
+
+<h3 id="2f项-菲涅尔系数fresnel">2.F项 菲涅尔系数（Fresnel）</h3>
+
+<p>业界方案一般都采用Schlick的Fresnel近似，因为计算成本低廉，而且精度足够：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Fresnel.png" alt="" /></p>
+
+<h3 id="3g项-几何阴影遮蔽函数geometry-shadow-function">3.G项 几何阴影遮蔽函数(Geometry Shadow function)</h3>
+
+<p>几何函数也使用粗糙度作为输入参数，更粗糙意味着微平面产生自阴影的概率更高。几何函数使用由GGX和Schlick-Beckmann组合而成的模拟函数Schlick-GGX：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Geomtry-Shadow.png" alt="" /></p>
+
+<p>这里的k是使用粗糙度α计算而来的，用于直接光照和IBL光照的几何函数的参数：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/G-roughness.png" alt="" /></p>
+
+<p>为了有效地模拟几何体，我们需要同时考虑两个视角，视线方向（几何遮挡）跟光线方向（几何阴影），我们可以用Smith函数将两部分放到一起：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Slick.png" alt="" /></p>
+
+<h2 id="2基于物理的环境光照physically-based-environment-lighting-"><strong>2.基于物理的环境光照（Physically Based Environment Lighting ）</strong></h2>
+
+<p>漫反射环境光照部分一般采用传统IBL中辉度环境映射（Irradiance Environment Mapping）技术，并不是基于物理的特有方案，这里暂不讨论。</p>
+
+<p>而基于物理的镜面反射（Specular）环境光照，业界中一般会采用基于图像的光照（IBL）的方案。要将基于物理的BRDF模型与基于图像的光照（IBL）一起使用，需要求解光亮度积分（Radiance Integral），而求解光亮度积分通常会使用重要性采样（Importance Sample）。</p>
+
+<h3 id="1预过滤环境贴图pre-filtered-environment-map">1.预过滤环境贴图（Pre-filtered environment map）</h3>
+
+<p>第一项可以理解为对光亮度求均值。经过n= v= r的假设，仅取决于表面粗糙度（surface roughness）和反射矢量（reflection vector）。这一项，业界的做法比较统一（包括UE4和COD：Black Ops 2等），采用的方案主要借助预过滤环境贴图，用多级模糊的mipmap来存储模糊的环境高光:</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Pre-filtered.png" alt="" /></p>
+
+<p>也就是说，第一项直接使用cubemap 的mip级别采样输入即可。</p>
+
+<h3 id="2环境brdf-environment-brdf">2.环境BRDF （Environment BRDF）</h3>
+
+<p>第二项即镜面反射项的半球方向反射率（hemispherical-directional reflectance），可以理解为环境BRDF（Environment BRDF）。其取决于仰角θ，粗糙度α和菲涅耳项F。 通常使用Schlick近似来近似F，其仅在单个值F0上参数化，从而使Rspec成为三个参数（仰角θ（NdotV），粗糙度α、F0）的函数。</p>
+
+<p>这一项的主要流派有两个，UE4的2D LUT，以及COD：OP2的解析拟合。</p>
+
+<h4 id="1流派12d-lut">1.流派1：2D LUT</h4>
+
+<p>UE4在[Real Shading in Unreal Engine 4, 2013]中提出，第二个求和项 ，使用Schlick近似后， F0可以从积分中分出来：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Lut-Fuction.png" alt="" /></p>
+
+<p>上式留下了两个输入（Roughness 和 cos θv）和两个输出（缩放和向F0的偏差（a scale and bias to F0）），即把上述方程看成是F0 * Scale + Offset的形式。 我们预先计算此函数的结果并将其存储在2D查找纹理（LUT，look-up texture）中。</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/2D-Lut.jpg" alt="" /></p>
+
+<p>这张红绿色的贴图，输入roughness、cosθ，输出环境BRDF镜面反射的强度。是关于roughness、cosθ与环境BRDF镜面反射强度的固有映射关系。可以离线预计算。</p>
+
+<p>具体的取出方式为：</p>
+
+<p><img src="/img/in-post/post-pbr-rendering/Lut-Extrude.png" alt="" /></p>
+
+<p>即UE4是通过把Fresnel公式的F0提出来，组成F0 * Scale +Offset的方式，再将Scale和Offset的索引存到一张2D LUT上。靠roughness和 NdotV进行查找。</p>
+
+<h4 id="2流派2解析拟合">2.流派2：解析拟合</h4>
+
+<p>COD：Black Ops 2的做法，是通过数学工具<a href="http://www.wolfram.com/mathematica/">Mathematica</a>中的数值积分拟合出曲线，即将UE4离线计算的这张2D LUT用如下函数进行了拟合：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">float3</span> <span class="nf">EnvironmentBRDF</span><span class="p">(</span> <span class="kt">float</span> <span class="n">g</span><span class="p">,</span> <span class="kt">float</span> <span class="n">NoV</span><span class="p">,</span> <span class="n">float3</span> <span class="n">rf0</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">float4</span> <span class="n">t</span> <span class="o">=</span> <span class="n">float4</span><span class="p">(</span> <span class="mi">1</span><span class="o">/</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.475</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0275</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="err">\</span><span class="o">*</span> <span class="mf">0.04</span><span class="p">)</span><span class="o">/</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.25</span> <span class="p">);</span>
+    <span class="n">t</span> <span class="o">*=</span> <span class="n">float4</span><span class="p">(</span> <span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">g</span> <span class="p">);</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">float4</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.015</span> <span class="o">-</span> <span class="mf">0.75</span> <span class="o">*</span> <span class="mf">0.04</span><span class="p">)</span><span class="o">/</span><span class="mf">0.96</span><span class="p">,</span> <span class="mf">0.75</span> <span class="p">);</span>
+    <span class="kt">float</span> <span class="n">a0</span> <span class="o">=</span> <span class="n">t</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">min</span><span class="p">(</span> <span class="n">t</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">exp2</span><span class="p">(</span> <span class="o">-</span><span class="mf">9.28</span> <span class="o">*</span> <span class="n">NoV</span> <span class="p">)</span> <span class="p">)</span> <span class="o">+</span> <span class="n">t</span><span class="p">.</span><span class="n">z</span><span class="p">;</span> <span class="kt">float</span> <span class="n">a1</span> <span class="o">=</span> <span class="n">t</span><span class="p">.</span><span class="n">w</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">saturate</span><span class="p">(</span> <span class="n">a0</span> <span class="o">+</span> <span class="n">rf0</span> <span class="o">*</span> <span class="p">(</span> <span class="n">a1</span> <span class="o">-</span> <span class="n">a0</span> <span class="p">)</span> <span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>需要注意的是，上面的方程是基于Blinn-Phong分布的结果，<a href="https://knarkowicz.wordpress.com/2014/12/27/analytical-dfg-term-for-ibl/">https://knarkowicz.wordpress.com/2014/12/27/analytical-dfg-term-for-ibl/</a>一文中提出了基于GGX分布的EnvironmentBRDF解析版本：</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="n">float3</span> <span class="nf">EnvDFGLazarov</span><span class="p">(</span> <span class="n">float3</span> <span class="n">specularColor</span><span class="p">,</span> <span class="kt">float</span> <span class="n">gloss</span><span class="p">,</span> <span class="kt">float</span> <span class="n">ndotv</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">float4</span> <span class="n">p0</span> <span class="o">=</span> <span class="n">float4</span><span class="p">(</span> <span class="mf">0.5745</span><span class="p">,</span> <span class="mf">1.548</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.02397</span><span class="p">,</span> <span class="mf">1.301</span> <span class="p">);</span>
+    <span class="n">float4</span> <span class="n">p1</span> <span class="o">=</span> <span class="n">float4</span><span class="p">(</span> <span class="mf">0.5753</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2511</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.02066</span><span class="p">,</span> <span class="mf">0.4755</span> <span class="p">);</span>
+    <span class="n">float4</span> <span class="n">t</span> <span class="o">=</span> <span class="n">gloss</span> <span class="o">*</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">p1</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">bias</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span> <span class="n">t</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">min</span><span class="p">(</span> <span class="n">t</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">exp2</span><span class="p">(</span> <span class="o">-</span><span class="mf">7.672</span> <span class="o">*</span> <span class="n">ndotv</span> <span class="p">)</span> <span class="p">)</span> <span class="o">+</span> <span class="n">t</span><span class="p">.</span><span class="n">z</span> <span class="p">);</span>
+    <span class="kt">float</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span> <span class="n">t</span><span class="p">.</span><span class="n">w</span> <span class="p">);</span>
+    <span class="kt">float</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">-</span> <span class="n">bias</span><span class="p">;</span>
+    <span class="n">bias</span> <span class="o">*=</span> <span class="n">saturate</span><span class="p">(</span> <span class="mf">50.0</span> <span class="o">*</span> <span class="n">specularColor</span><span class="p">.</span><span class="n">y</span> <span class="p">);</span>
+    <span class="k">return</span> <span class="n">specularColor</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">+</span> <span class="n">bias</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>上式中的specularColor即F0。</p>
+
+<p>EnvironmentBRDF函数的输入参数分别为光泽度gloss，NdotV，F0。和UE4的做法有异曲同工之妙，但COD：Black Ops 2的做法不需要额外的贴图采样，这在进行移动端优化时，是不错的选择。</p>
+
+<h1 id="离线渲染相关offline-rendering-related"><strong>离线渲染相关（Offline Rendering Related）</strong></h1>
+
+<p>虽然我们目前主要关注的是实时渲染（实时光栅图形学相关，暂时不关注实时光线追踪）领域，但很多时候，实时渲染也需要涉及到预计算，尤其是IBL相关的预计算，所以或多或少会用到离线渲染相关的知识。</p>
+
+<p>以下是与实时渲染结合相对紧密的离线渲染相关的核心主题以及概括总结（主要是统计学与概率相关）：</p>
+
+<ul>
+  <li><strong>重要性采样（ Importance Sample）</strong>：蒙特卡洛积分的一种采样策略。思路是基于分布函数，尽量对被积函数分布可能性较高的区域进行采样。</li>
+  <li><strong>多重要性采样（Muti Importance Sampling, MIS）</strong> ：估算某一积分时，基于多个分布函数获取采样，并期望至少某一分布与被积函数形状适配。即根据各种技术对采样进行加权计算，进而消除源自被积函数值与采样密度不匹配造成的较大反差。</li>
+  <li><strong>大数定律（Law of Large Numbers）</strong> ：在试验不变的条件下，重复试验多次，随机事件的频率近似于它的概率。即偶然中包含着某种必然。</li>
+  <li><strong>蒙特卡洛方法（Monte Carlo Methods）</strong> ：一种以概率统计理论为指导的数值计算方法。是指使用随机数（或更常见的伪随机数）来解决很多计算问题的方法。</li>
+  <li><strong>低偏差序列（Low-discrepancy sequence）</strong> ：一种确定生成的超均匀分布列，也称为拟随机列、次随机列，常见低偏差序列有Hammersley，Halton等。</li>
+  <li><strong>拟蒙特卡罗方法（Quasi-Monte Carlo Method）</strong> ：使用低差异列来进行数值积分和研究其它一些数值问题的方法。
+等</li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://zhuanlan.zhihu.com/p/53086060">https://zhuanlan.zhihu.com/p/53086060</a></li>
+  <li><a href="https://www.cnblogs.com/timlly/p/10631718.html?from=timeline&amp;isappinstalled=0#228-%E8%BF%AA%E6%96%AF%E5%B0%BC%E5%8E%9F%E5%88%99%E7%9A%84brdf%EF%BC%88disney-principled-brdf-2012%E5%B9%B4">https://www.cnblogs.com/timlly/p/10631718.html?from=timeline&amp;isappinstalled=0#228-%E8%BF%AA%E6%96%AF%E5%B0%BC%E5%8E%9F%E5%88%99%E7%9A%84brdf%EF%BC%88disney-principled-brdf-2012%E5%B9%B4</a></li>
+  <li><a href="https://www.jianshu.com/p/9f47d5334fd3">https://www.jianshu.com/p/9f47d5334fd3</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/64067195">https://zhuanlan.zhihu.com/p/64067195</a></li>
+</ul>
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/07/18/My-First-Bolg/" data-toggle="tooltip" data-placement="top" title="My First Blog!">
+                        Previous<br>
+                        <span>My First Blog!</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/10/23/Toon-Hair-Rendering/" data-toggle="tooltip" data-placement="top" title="「HDRP」Unity Toon Hair Rendering">
+                        Next<br>
+                        <span>「HDRP」Unity Toon Hair Rendering</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        
+        
+        
+                <a data-sort="0007" 
+                    href="/archive/?tag=%E5%9B%BE%E5%BD%A2%E5%AD%A6"
+                    title="图形学"
+                    rel="3">图形学</a>
+        
+                <a data-sort="0003" 
+                    href="/archive/?tag=Shader"
+                    title="Shader"
+                    rel="7">Shader</a>
+        
+                <a data-sort="0004" 
+                    href="/archive/?tag=%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6"
+                    title="计算机图形学"
+                    rel="6">计算机图形学</a>
+        
+                <a data-sort="0005" 
+                    href="/archive/?tag=Unity"
+                    title="Unity"
+                    rel="5">Unity</a>
+        
+                <a data-sort="0006" 
+                    href="/archive/?tag=%E7%AC%94%E8%AE%B0"
+                    title="笔记"
+                    rel="4">笔记</a>
+        
+                <a data-sort="0007" 
+                    href="/archive/?tag=%E5%9F%BA%E7%A1%80"
+                    title="基础"
+                    rel="3">基础</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=CG"
+                    title="CG"
+                    rel="2">CG</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=OpenGL"
+                    title="OpenGL"
+                    rel="2">OpenGL</a>
+    </div>
+</section>
+
+
+                <!-- Friends Blog -->
+                
+<hr>
+<h5>FRIENDS</h5>
+<ul class="list-inline">
+  
+  <li><a href="http://candycat1992.github.io/">Candycat Blog</a></li>
+  
+  <li><a href="https://roystan.net/">Erik Roystan Ross Blog</a></li>
+  
+  <li><a href="http://walkingfat.com/">WalkingFat Blog</a></li>
+  
+  <li><a href="http://qiankanglai.me/">Kanglai Blog</a></li>
+  
+  <li><a href="http://www.ixulin.com/">徐小厨烹小鲜 Blog</a></li>
+  
+  <li><a href="https://www.iquilezles.org/">Íñigo Quílez大神 Blog</a></li>
+  
+  <li><a href="http://www.shaderslab.com/index.html">Shaders Laboratory</a></li>
+  
+  <li><a href="https://80.lv/">80 Level</a></li>
+  
+  <li><a href="https://www.shadertoy.com/">Shadertoy</a></li>
+  
+</ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'right',
+          // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  <li>
+    <a href="https://twitter.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="https://www.zhihu.com/people/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa  fa-stack-1x fa-inverse">知</i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="http://weibo.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/Yoko">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; Yoko Blog 2020
+                    <br>
+                    Powered by <a href="http://Yokowave.github.io">Yoko Blog</a> |
+                    <iframe style="margin-left: 2px; margin-bottom:-5px;" frameborder="0" scrolling="0" width="100px"
+                        height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true">
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Simple Jekyll Search -->
+<script src="/js/simple-jekyll-search.min.js"></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function () {
+        var $nav = document.querySelector("nav");
+        if ($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog(selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector), a, n, t, l, i, c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#" + $(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="' + i + '" rel="nofollow">' + t + '</a>');
+            l = $('<li class="' + n + '_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function (e) {
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+<!-- Simple Jekyll Search -->
+<script>
+    // https://stackoverflow.com/questions/1912501/unescape-html-entities-in-javascript
+    function htmlDecode(input) {
+        var e = document.createElement('textarea');
+        e.innerHTML = input;
+        // handle case of empty input
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+    SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('search-results'),
+        json: '/search.json',
+        searchResultTemplate: '<div class="post-preview item"><a href="{url}"><h2 class="post-title">{title}</h2><h3 class="post-subtitle">{subtitle}</h3><hr></a></div>',
+        noResultsText: 'No results',
+        limit: 50,
+        fuzzy: false,
+        // a hack to get escaped subtitle unescaped. for some reason, 
+        // post.subtitle w/o escape filter nuke entire search.
+        templateMiddleware: function (prop, value, template) {
+            if (prop === 'subtitle' || prop === 'title') {
+                if (value.indexOf("code")) {
+                    return htmlDecode(value);
+                } else {
+                    return value;
+                }
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        var $searchPage = $('.search-page');
+        var $searchOpen = $('.search-icon');
+        var $searchClose = $('.search-icon-close');
+        var $searchInput = $('#search-input');
+        var $body = $('body');
+
+        $searchOpen.on('click', function (e) {
+            e.preventDefault();
+            $searchPage.toggleClass('search-active');
+            var prevClasses = $body.attr('class') || '';
+            setTimeout(function () {
+                $body.addClass('no-scroll');
+            }, 400)
+
+            if ($searchPage.hasClass('search-active')) {
+                $searchClose.on('click', function (e) {
+                    e.preventDefault();
+                    $searchPage.removeClass('search-active');
+                    $body.attr('class', prevClasses);  // from closure 
+                });
+                $searchInput.focus();
+            }
+        });
+    });
+</script>
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
